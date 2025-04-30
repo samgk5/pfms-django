@@ -30,6 +30,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['.onrender.com']
 
+import dj_database_url
+import os
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sam_apcs',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -75,10 +79,10 @@ WSGI_APPLICATION = 'personal_finance_management_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'), conn_max_age=600)
 }
-
 
 
 # Password validation
