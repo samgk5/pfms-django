@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personal Finance Form</title>
+</head>
+<body>
+    <h1>Enter Personal Info and Budget</h1>
+    <form method="post">
+        {% csrf_token %}
+        <h2>Personal Info</h2>
+        {{ personal_form.as_p }}
+
+        <h2>Budget</h2>
+        {{ budget_form.as_p }}
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

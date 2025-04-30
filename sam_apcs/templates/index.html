@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PFMS - Finance Manangement System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #d4edda;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 750px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      margin-top: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .result {
+      background-color: #e9f9ee;
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .excess {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>PFMS - Personal Finance Management</h2>
+
+    <form id="infoForm">
+      <label for="name">👤 Full Name:</label>
+      <input type="text" id="name" required>
+
+      <label for="reg">🆔 Reg Number / ID:</label>
+      <input type="text" id="reg" required>
+
+      <label for="occupation">💼 Occupation:</label>
+      <select id="occupation"> <option>Student</option>
+        <option>Teacher</option>
+        <option>Engineer</option>
+        <option>Other</option>
+      </select>
+      <input type="text" id="customOccupation" placeholder="If Other, specify">
+
+      <label for="gender">⚥ Gender:</label>
+      <select id="gender">
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+
+      <label for="security">🔐 Security Question:</label>
+      <select id="security">
+        <option>What is your favorite color?</option>
+        <option>What is your pet's name?</option>
+        <option>What is your childhood nickname?</option>
+      </select>
+      <input type="text" id="securityAnswer" placeholder="Your Answer" required>
+
+      <button type="submit">Save & Continue</button>
+    </form>
+
+    <div id="budgetSection" style="display:none;">
+      <label for="amount">💰 How much do you have?</label>
+      <input type="number" id="amount" placeholder="e.g. 10000" required>
+
+      <label for="days">📅 Duration in days:</label>
+      <input type="number" id="days" placeholder="e.g. 10" required>
+
+      <button onclick="generatePlan()">Generate Meal Plan</button>
+
+      <div class="result" id="result" style="display:none;">
+        <p><strong>Daily Meal Breakdown (Breakfast: 30 | Supper: 50):</strong></p>
+        <ul id="mealList"></ul>
+
+        <p><strong>Total for Basic Meals:</strong> KSh <span id="basicTotal">0</span></p>
+        <div id="feedback"></div>
+
+        <label for="extra">➕ Add More Money (optional):</label>
+        <input type="number" id="extra" placeholder="e.g. 2000">
+        <button onclick="addMoney()">Update Budget</button>
+
+        <p><strong>Total Budget:</strong> KSh <span id="total">0</span></p>
+
+        <div id="customExpenseSection" style="display:none; margin-top:20px;">
+          <hr>
+          <label for="customExpense">✨ Optional Daily Expense Name:</label>
+          <input type="text" id="customExpense" placeholder="e.g. Transport or Upgrade Meal">
+
+          <label for="customAmount">Amount per day (KSh):</label>
+          <input type="number" id="customAmount" placeholder="e.g. 20">
+
+          <button onclick="addCustomExpense()">Add Daily Expense</button>
+          <ul id="customExpenseList"></ul>
+        </div>
+
+        <div id="oneTimeSection" style="display:none; margin-top:20px;">
+          <hr>
+          <label for="oneTimeName">🎉 One-Time Expense Name:</label>
+          <input type="text" id="oneTimeName" placeholder="e.g. Sunday Fun Day">
+
+          <label for="oneTimeAmount">Amount (KSh):</label>
+          <input type="number" id="oneTimeAmount" placeholder="e.g. 500">
+
+          <button onclick="addOneTimeExpense()">Add One-Time Expense</button>
+          <ul id="oneTimeList"></ul>
+        </div>
+
+        <hr>
+        <button onclick="saveRemaining()">💾 Save Remaining Amount</button>
+        <p><strong>Saved Amount:</strong> KSh <span id="savedAmount">0</span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAmount = 0;
+    let totalBasic = 0;
+    let days = 0;
+
+    document.getElementById("infoForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      document.getElementById("infoForm").style.display = "none";
+      document.getElementById("budgetSection").style.display = "block";
+    });
+
+    function generatePlan() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      days = parseInt(document.getElementById("days").value);
+      if (isNaN(amount) || isNaN(days) || days <= 0) {
+        alert("Please enter valid amount and days.");
+        return;
+      }
+
+      currentAmount = amount;
+      totalBasic = (50 + 30) * days;
+      document.getElementById("basicTotal").textContent = totalBasic.toFixed(2);
+      document.getElementById("total").textContent = currentAmount.toFixed(2);
+
+      const list = document.getElementById("mealList");
+      list.innerHTML = '';
+      for (let i = 1; i <= days; i++) {
+        const li = document.createElement("li");
+        li.textContent = `Day ${i}: Breakfast - KSh 30 | Supper - KSh 50`;
+        list.appendChild(li);
+      }
+
+      const feedback = document.getElementById("feedback");
+      feedback.innerHTML = '';
+      if (currentAmount < totalBasic) {
+        const needed = totalBasic - currentAmount;
+        feedback.innerHTML = `<p class="warning">⚠️ You need to add KSh ${needed.toFixed(2)} more to cover basic meals.</p>`;
+        document.getElementById("customExpenseSection").style.display = "none";
+        document.getElementById("oneTimeSection").style.display = "none";
+      } else {
+        const extra = currentAmount - totalBasic;
+        feedback.innerHTML = `<p class="excess">✅ You have KSh ${extra.toFixed(2)} extra after meals.</p>`;
+        document.getElementById("customExpenseSection").style.display = "block";
+        document.getElementById("oneTimeSection").style.display = "block";
+      }
+
+      document.getElementById("result").style.display = "block";
+    }
+
+    function addMoney() {
+      const extra = parseFloat(document.getElementById("extra").value);
+      if (isNaN(extra) || extra <= 0) {
+        alert("Enter a valid amount.");
+        return;
+      }
+      currentAmount += extra;
+      document.getElementById("total").textContent = currentAmount.toFixed(2);
+      document.getElementById("extra").value = '';
+      generatePlan();
+    }
+
+    function addCustomExpense() {
+      const name = document.getElementById("customExpense").value.trim();
+      const amount = parseFloat(document.getElementById("customAmount").value);
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert("Enter valid daily expense and amount.");
+        return;
+      }
+
+      const totalExpense = amount * days;
+      const remaining = currentAmount - totalBasic;
+
+      if (totalExpense > remaining) {
+        alert("Not enough budget to cover this for all days.");
+        return;
+      }
+
+      currentAmount -= totalExpense;
+      document.getElementById("total").textContent = currentAmount.toFixed(2);
+
+      const list = document.getElementById("customExpenseList");
+      const li = document.createElement("li");
+      li.textContent = `${name} - KSh ${amount}/day × ${days} = ${totalExpense}`;
+      list.appendChild(li);
+
+      document.getElementById("customExpense").value = '';
+      document.getElementById("customAmount").value = '';
+      generatePlan();
+    }
+
+    function addOneTimeExpense() {
+      const name = document.getElementById("oneTimeName").value.trim();
+      const amount = parseFloat(document.getElementById("oneTimeAmount").value);
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert("Enter valid name and amount.");
+        return;
+      }
+
+      if (amount > (currentAmount - totalBasic)) {
+        alert("Not enough money left for this one-time expense.");
+        return;
+      }
+
+      currentAmount -= amount;
+      document.getElementById("total").textContent = currentAmount.toFixed(2);
+
+      const list = document.getElementById("oneTimeList");
+      const li = document.createElement("li");
+      li.textContent = `${name} - One-time cost: KSh ${amount}`;
+      list.appendChild(li);
+
+      document.getElementById("oneTimeName").value = '';
+      document.getElementById("oneTimeAmount").value = '';
+      generatePlan();
+    }
+
+    function saveRemaining() {
+      const customExpenses = document.querySelectorAll("#customExpenseList li");
+      const oneTimeExpenses = document.querySelectorAll("#oneTimeList li");
+
+      let customTotal = 0;
+      customExpenses.forEach(li => {
+        const match = li.textContent.match(/= (\d+(\.\d+)?)/);
+        if (match) customTotal += parseFloat(match[1]);
+      });
+
+      let oneTimeTotal = 0;
+      oneTimeExpenses.forEach(li => {
+        const match = li.textContent.match(/KSh (\d+(\.\d+)?)/);
+        if (match) oneTimeTotal += parseFloat(match[1]);
+      });
+
+      const remaining = currentAmount - totalBasic - customTotal - oneTimeTotal;
+
+      if (remaining <= 0) {
+        alert("No remaining amount to save.");
+        return;
+      }
+
+      localStorage.setItem("savedAmount", remaining.toFixed(2));
+      document.getElementById("savedAmount").textContent = remaining.toFixed(2);
+      alert("Remaining amount saved!");
+    }
+
+    window.onload = function() {
+      const saved = localStorage.getItem("savedAmount");
+      if (saved) {
+        document.getElementById("savedAmount").textContent = saved;
+      }
+    };
+  </script>
+</body>
+</html>
